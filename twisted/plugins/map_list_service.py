@@ -33,13 +33,6 @@ class MapListServiceMaker(object):
     options = Options
 
     def makeService(self, options):
-        # author = Author(store=s, name=u'jayess', steamID=123)
-        # la = LevelAuthor(store=s, author=author, level=level)
-        # print(s.query(LevelAuthor, LevelAuthor.author == author).count())
-        # la.deleteFromStore()
-        # print(s.query(LevelAuthor, LevelAuthor.author == author).count())
-        # return MultiService()
-
         class LongSession(Session):
             sessionTimeout = 3600
 
