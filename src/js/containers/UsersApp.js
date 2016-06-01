@@ -23,7 +23,8 @@ class UsersApp extends React.Component {
   }
 
   render() {
-    const {fetching, fetchingError, addingError, deletingError, data} = this.props
+    const {fetching, fetchingError, adding, addingError, deletingError,
+           data} = this.props
     let errorContent
     if (deletingError) {
       errorContent = (
@@ -85,6 +86,7 @@ class UsersApp extends React.Component {
           </Table>
           {errorContent}
           <UsersAddForm
+            adding={adding}
             addingError={addingError}
             addUser={this.props.addUser} />
         </div>

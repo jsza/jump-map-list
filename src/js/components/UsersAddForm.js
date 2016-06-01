@@ -1,17 +1,23 @@
 import React, {PropTypes as P} from 'react'
 
 
-import {FormGroup, FormControl, Button} from 'react-bootstrap'
+import {FormGroup, FormControl, Button, Checkbox} from 'react-bootstrap'
 
 
 export default class UsersAddForm extends React.Component {
   constructor(props) {
     super(props)
-    this.state = {value: ''}
+    this.state = {value: '', superuser: false}
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.adding && !nextProps.adding && !nextProps.addingError) {
+      this.setState({value: '', superuser: false})
+    }
   }
 
   handleAdd() {
-    this.props.addUser(this.state.value.trim())
+    this.props.addUser(this.state.value.trim(), this.state.superuser)
   }
 
   onInputChange(event) {
@@ -24,26 +30,36 @@ export default class UsersAddForm extends React.Component {
     }
   }
 
+  onCheckboxChange(event) {
+    this.setState({superuser: event.target.checked})
+  }
+
   render() {
-    const {addingError} = this.props
+    const {adding, addingError} = this.props
     const val = this.state.value.trim()
     const valid = (val.length === 0 ? true : /^\d+$/.test(val))
     return (
       <div>
         <div className="form-inline">
-          <FormGroup>
-            <FormControl
-              placeholder="64-bit steamID"
-              value={this.state.value}
-              onChange={(e) => this.onInputChange(e)}
-              onKeyUp={(e) => this.onInputKeyUp(e)}
-              />
-          </FormGroup>
+          <FormControl
+            placeholder="64-bit steamID"
+            value={this.state.value}
+            onChange={(e) => this.onInputChange(e)}
+            onKeyUp={(e) => this.onInputKeyUp(e)}
+            />
+          <span> </span>
+          <Checkbox
+            checked={this.state.superuser}
+            readOnly
+            onChange={this.onCheckboxChange.bind(this)}
+            >
+            Superuser
+          </Checkbox>
           <span> </span>
           <Button
             bsStyle="primary"
             onClick={() => this.handleAdd()}
-            disabled={!valid}
+            disabled={!valid || adding}
             >
             <i className="fa fa-fw fa-plus" /> Add User
           </Button>
@@ -64,5 +80,6 @@ export default class UsersAddForm extends React.Component {
 
 UsersAddForm.propTypes =
   { addUser: P.func.isRequired
+  , adding: P.bool.isRequired
   , addingError: P.string
   }

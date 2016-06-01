@@ -44,7 +44,12 @@ class UsersRouter(object):
             ourUser = getUser(self.store, self.steamID)
             if not ourUser.superuser:
                 return ForbiddenResource()
+
             steamID = params['steamID']
+            r = q.parse(
+                { 'superuser': q.one(q.Boolean)
+                }, request.args)
+            superuser = r['superuser']
 
             response = self.steamAPI['ISteamUser'].GetPlayerSummaries(
                 (steamID,))['response']
@@ -52,7 +57,7 @@ class UsersRouter(object):
                 return APIError(http.BAD_REQUEST, 'Steam user does not exist.')
 
             try:
-                user = addUser(self.store, steamID, superuser=False)
+                user = addUser(self.store, steamID, superuser=superuser)
             except ValueError:
                 return APIError(http.BAD_REQUEST, 'User already exists.')
 
