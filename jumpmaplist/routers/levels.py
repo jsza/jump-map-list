@@ -185,7 +185,7 @@ class SingleLevelAuthorsRouter(object):
             author = self.store.getItemByID(authorID)
             if not isinstance(author, Author):
                 return APIError(http.BAD_REQUEST,
-                                'Item ID is not a Author.')
+                                'Item ID is not an Author.')
 
             query = self.store.query(LevelAuthor,
                 attributes.AND(
