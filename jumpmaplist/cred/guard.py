@@ -11,12 +11,13 @@ from twisted.internet.threads import deferToThread
 from twisted.python.urlpath import URLPath
 from twisted.web import http
 from twisted.web.guard import HTTPAuthSessionWrapper
-from twisted.web.resource import Resource, IResource
+from twisted.web.resource import Resource, IResource, ForbiddenResource
 from twisted.web.static import Data
 from twisted.web.template import renderElement
 from twisted.web.util import Redirect, DeferredResource
 
 from jumpmaplist.cred.credentials import Preauthenticated
+from jumpmaplist.database import getUser
 from jumpmaplist.util import getUrlForRequest
 
 
@@ -91,11 +92,13 @@ class HTTPOpenIDAuthSessionWrapper(HTTPAuthSessionWrapper):
     cookieName = 'MAP_LIST_AUTH'
     sessionTimeout = 604800
 
-    def __init__(self, portal, credentialFactories, redirectTo, keyPath):
+    def __init__(self, portal, credentialFactories, redirectTo, keyPath,
+                 databaseStore):
         HTTPAuthSessionWrapper.__init__(self, portal, credentialFactories)
         self.openIDStore = MemoryStore()
         self.loginSemaphore = DeferredSemaphore(1)
         self.redirectTo = redirectTo
+        self.databaseStore = databaseStore
         if keyPath.exists():
             self.fernet = Fernet(keyPath.getContent())
         else:
@@ -146,6 +149,9 @@ class HTTPOpenIDAuthSessionWrapper(HTTPAuthSessionWrapper):
         else:
             # This should never occur unless Valve changes the ID format
             raise ValueError('Claimed ID is invalid: {}'.format(claimedID))
+
+        if not getUser(self.databaseStore, steamID):
+            return ForbiddenResource('You are not authorized to access this site.')
 
         token = self.makeToken(steamID)
 

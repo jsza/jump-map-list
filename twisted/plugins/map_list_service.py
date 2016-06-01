@@ -42,7 +42,7 @@ class MapListServiceMaker(object):
         portal.registerChecker(PreauthenticatedChecker())
         portal.registerChecker(AllowAnonymousAccess())
 
-        root = HTTPOpenIDAuthSessionWrapper(portal, [], '/', keyPath)
+        root = HTTPOpenIDAuthSessionWrapper(portal, [], '/', keyPath, store)
 
         site = Site(root)
         site.sessionFactory = LongSession
