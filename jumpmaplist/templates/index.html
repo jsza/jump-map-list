@@ -25,6 +25,10 @@
 
   <body>
     <div id="app" />
+    <div t:render="login_data" id="login-data">
+      <t:attr name="data-steamid"><t:slot name="steamID" /></t:attr>
+      <t:attr name="data-superuser"><t:slot name="superuser" /></t:attr>
+    </div>
     <script t:render="bundlepath" />
   </body>
 </html>

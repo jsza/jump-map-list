@@ -17,14 +17,21 @@ class ApplicationElement(Element):
     loader = XMLFile(FilePath(jumpmaplist.__file__).sibling('templates').child(
         'index.html'))
 
-    def __init__(self, steamid, jsPath):
-        self.steamid = steamid
+    def __init__(self, steamID, jsPath, superuser):
+        self.steamID = steamID
         self.jsPath = jsPath
+        self.superuser = superuser
 
 
     @renderer
     def bundlepath(self, request, tag):
         return tag(src=self.jsPath)
+
+
+    @renderer
+    def login_data(self, request, tag):
+        return tag.fillSlots(steamID=str(self.steamID),
+                             superuser=json.dumps(self.superuser))
 
 
 

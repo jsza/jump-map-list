@@ -6,6 +6,7 @@ from zope.interface import implements
 from jumpmaplist.routers import PublicRouter, PrivateRouter
 from jumpmaplist.resource import ApplicationElement, LoginElement
 from jumpmaplist.util import ContentTypeRouter, LeafRenderableResource
+from jumpmaplist.database import getUser
 
 
 
@@ -30,7 +31,10 @@ class MapListRealm(object):
     def registered(self, avatarId):
         # steam:XXXXXXXXXXXXXXXXX
         steamID = int(avatarId[6:])
-        html = LeafRenderableResource(ApplicationElement(steamID, self.jsPath))
+        user = getUser(self.store, steamID)
+
+        html = LeafRenderableResource(ApplicationElement(steamID, self.jsPath,
+                                                         user.superuser))
         json = PrivateRouter(self.store, steamID)
 
         return ContentTypeRouter([
