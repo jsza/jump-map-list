@@ -13,7 +13,6 @@ from zope.interface import implements
 from jumpmaplist.cred.guard import HTTPOpenIDAuthSessionWrapper
 from jumpmaplist.cred.realm import MapListRealm
 from jumpmaplist.cred.checkers import PreauthenticatedChecker
-from jumpmaplist.items import Level
 
 
 

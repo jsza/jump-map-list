@@ -81,5 +81,5 @@ class LevelMedia(Item):
 
 
 class User(Item):
-    steamID   = A.text(doc='64-bit community steam ID.', allowNone=False)
+    steamID   = A.integer(doc='64-bit community steam ID.', allowNone=False)
     superuser = A.boolean(doc='User can add or delete other users.', allowNone=False)

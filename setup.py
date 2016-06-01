@@ -4,7 +4,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="jump-map-list",
-    packages=find_packages() + ["twisted.plugins"],
+    packages=find_packages() + ["twisted.plugins", "axiomatic.plugins"],
     install_requires=[
         "twisted",
         "axiom",
