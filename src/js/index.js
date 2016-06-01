@@ -5,9 +5,9 @@ import {Provider} from 'react-redux'
 import APIUtils from './utils/APIUtils'
 import configureStore from './store/configureStore'
 
-import LevelsApp from './containers/LevelsApp'
+import App from './containers/App'
 
-import '../stylus/main.styl'
+import '../stylus/index.styl'
 
 
 function main() {
@@ -15,7 +15,7 @@ function main() {
   const store = configureStore(api)
   ReactDOM.render(
     <Provider store={store}>
-      <LevelsApp />
+      <App />
     </Provider>,
     document.getElementById('app')
   )

@@ -13,9 +13,10 @@ from jumpmaplist.database import getUser
 class MapListRealm(object):
     implements(IRealm)
 
-    def __init__(self, store, jsPath):
+    def __init__(self, store, jsPath, steamAPI):
         self.store = store
         self.jsPath = jsPath
+        self.steamAPI = steamAPI
 
 
     def anonymous(self):
@@ -35,7 +36,7 @@ class MapListRealm(object):
 
         html = LeafRenderableResource(ApplicationElement(steamID, self.jsPath,
                                                          user.superuser))
-        json = PrivateRouter(self.store, steamID)
+        json = PrivateRouter(self.store, steamID, self.steamAPI)
 
         return ContentTypeRouter([
             ('text/html', html),

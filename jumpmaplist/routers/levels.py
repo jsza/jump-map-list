@@ -62,13 +62,12 @@ class LevelsRouter(object):
             if query.count() > 0:
                 return APIError(http.BAD_REQUEST, 'Map already exists.')
             level = Level(store=self.store, name=name, levelType=1)
-            author = Author(store=self.store, name=u'jayess')
-            LevelAuthor(store=self.store, level=level, author=author)
             return (
                 { 'id': level.storeID
                 , 'name': level.name
-                , 'soldier_tier': 0
-                , 'demoman_tier': 0
+                , 'class_tiers': {}
+                , 'author_count': 0
+                , 'author_name': None
                 })
         return EasyResource(handlePOST=POST)
 

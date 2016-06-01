@@ -2,13 +2,15 @@ import {createStore, applyMiddleware, compose} from 'redux'
 import thunkMiddleware from 'redux-thunk'
 import rootReducer from '../redux/reducer'
 import apiMiddleware from '../middleware/api'
+import avatarMiddleware from '../middleware/steamAvatar'
 
 
 export default function configureStore(api, initialState) {
   const store = compose(
     applyMiddleware(
       thunkMiddleware,
-      apiMiddleware(api)
+      apiMiddleware(api),
+      avatarMiddleware()
     )
   )(createStore)(rootReducer, initialState)
 

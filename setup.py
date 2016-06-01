@@ -4,12 +4,13 @@ from setuptools import find_packages, setup
 
 setup(
     name="jump-map-list",
-    packages=find_packages() + ["twisted.plugins", "axiomatic.plugins"],
+    packages=find_packages() + ["twisted.plugins", "axiom.plugins"],
     install_requires=[
         "twisted",
         "axiom",
         "txspinneret >= 0.1.2",
         "service_identity >= 14.0.0",
-        "python-openid"
+        "python-openid",
+        "python-valve"
     ]
 )

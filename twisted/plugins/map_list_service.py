@@ -1,5 +1,7 @@
 from axiom.store import Store
 
+from valve.steam.api.interface import API
+
 from twisted.application import strports
 from twisted.application.service import IServiceMaker
 from twisted.cred.checkers import AllowAnonymousAccess
@@ -19,8 +21,9 @@ from jumpmaplist.cred.checkers import PreauthenticatedChecker
 class Options(usage.Options):
     optParameters = (
         [ ['strport', 'sp', None, 'Strport description. eg. "tcp:1337:interface=127.0.0.1"']
-        , ['dbdir', 'd', None, 'Database directory path.']
+        , ['dbdir', 'd', None, 'Database directory path. eg. "jumpmaplist.axiom"']
         , ['bundle-path', 'b', None, 'Bundle path']
+        , ['steamkey', None, 'Steam web API key.']
         ])
 
 
@@ -35,10 +38,18 @@ class MapListServiceMaker(object):
         class LongSession(Session):
             sessionTimeout = 3600
 
+        if options['steamkey'] is None:
+            raise ValueError('Must specify steam API key.')
+        if options['strport'] is None:
+            raise ValueError('Must specify strport description.')
+        if options['dbdir'] is None:
+            raise ValueError('Must specify database path.')
+        steamAPI = API(key=options['steamkey'])
+
         store = Store(options['dbdir'])
         keyPath = FilePath(options['dbdir']).child('fernet.key')
 
-        portal = Portal(MapListRealm(store, options['bundle-path']))
+        portal = Portal(MapListRealm(store, options['bundle-path'], steamAPI))
         portal.registerChecker(PreauthenticatedChecker())
         portal.registerChecker(AllowAnonymousAccess())
 

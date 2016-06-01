@@ -64,7 +64,6 @@ class LevelsApp extends React.Component {
     }
     return (
       <div className="container-fluid">
-        <a href="/logout" className="pull-right">Sign out</a>
         <h1 className="page-title">jump.tf Maps</h1>
         <LevelDeleteAlert
           lastDelete={this.props.lastDelete}

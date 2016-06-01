@@ -1,5 +1,4 @@
 import React, {PropTypes as P} from 'react'
-import IP from 'react-immutable-proptypes'
 import {JUMP_CLASSES} from '../constants/TFClasses'
 
 import LevelTierSelect from './LevelTierSelect'
@@ -30,10 +29,9 @@ export default class LevelItem extends React.Component {
             />
         </td>
         {JUMP_CLASSES.map((tfClass, idx) =>
-          <td>
+          <td key={idx}>
             <LevelTierSelect
-              key={idx}
-              tier={class_tiers.getIn([tfClass.toString(), 'tier'])}
+              tier={class_tiers.getIn([tfClass.toString(), 'tier'], -1)}
               tfClass={tfClass}
               updateLevel={this.props.updateLevel}
               updating={this.props.updating}
@@ -59,7 +57,7 @@ export default class LevelItem extends React.Component {
 
 
 LevelItem.propTypes =
-  { data: IP.record.isRequired
+  { data: P.object.isRequired
   , updateLevel: P.func.isRequired
   , deleteLevel: P.func.isRequired
   }
