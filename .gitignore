@@ -63,6 +63,9 @@ target/
 #Ipython Notebook
 .ipynb_checkpoints
 
+# Twisted cache
+dropin.cache
+
 # === NODE ===
 
 # Logs
