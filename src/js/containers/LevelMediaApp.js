@@ -17,6 +17,15 @@ class LevelMediaApp extends React.Component {
     this.state = {show: false}
   }
 
+  renderBadge() {
+    const mc = this.props.mediaCounts
+    return (
+      <Badge className="level-media-badge" onClick={this.onShow.bind(this)}>
+        <i className="fa fa-picture-o" /> {mc.get('0', 0)} <i className="fa fa-youtube fa-1.5x" /> {mc.get('1', 0)}
+      </Badge>
+    )
+  }
+
   onShow(event) {
     event.preventDefault()
     this.setState({show: true})
@@ -82,11 +91,7 @@ class LevelMediaApp extends React.Component {
   render() {
     return (
       <div>
-        <span>
-          <Badge className="level-media-badge" onClick={this.onShow.bind(this)}>
-            <i className="fa fa-picture-o" /> 1 <i className="fa fa-youtube fa-1.5x" /> 2
-          </Badge>
-        </span>
+        {this.renderBadge()}
         {this.renderModal()}
       </div>
     )

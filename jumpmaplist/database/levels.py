@@ -1,7 +1,8 @@
 from axiom import attributes
 
-from jumpmaplist.items import Level, LevelAuthor, LevelClassTier, LevelMedia
+from jumpmaplist.constants.mediatype import MEDIA_TYPES
 from jumpmaplist.database import BaseDatabase
+from jumpmaplist.items import Level, LevelAuthor, LevelClassTier, LevelMedia
 
 
 
@@ -39,10 +40,17 @@ class LevelDatabase(BaseDatabase):
         for ct in classTiers:
             classTiersResult[ct.tfClass] = ct.toDict()
 
+        mediaCountResult = {}
+        for mediaType in MEDIA_TYPES:
+            mediaCountResult[mediaType] = self.store.query(LevelMedia,
+                attributes.AND(LevelMedia.level == level,
+                               LevelMedia.mediaType == mediaType)).count()
+
         result.update(
             { 'class_tiers': classTiersResult
             , 'author_count': authorCount
             , 'author_name': authorName
+            , 'media_counts': mediaCountResult
             })
         return result
 

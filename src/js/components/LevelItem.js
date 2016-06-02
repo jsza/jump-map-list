@@ -15,7 +15,8 @@ export default class LevelItem extends React.Component {
   }
 
   render() {
-    const {id, name, author_count, author_name, class_tiers} = this.props.data
+    const {id, name, author_count, author_name, class_tiers,
+           media_counts} = this.props.data
     return (
       <tr>
         <td>
@@ -44,6 +45,7 @@ export default class LevelItem extends React.Component {
           <LevelMediaApp
             levelID={id}
             name={name}
+            mediaCounts={media_counts}
             />
         </td>
         <td>
