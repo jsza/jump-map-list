@@ -15,9 +15,9 @@ from jumpmaplist.resource import EasyResource, APIError
 class AuthorsRouter(object):
     router = Router()
 
-    def __init__(self, store, steamID):
+    def __init__(self, db, steamID):
+        self.db = db
         self.steamID = steamID
-        self.store = store
 
 
     @router.subroute('list')
@@ -27,20 +27,7 @@ class AuthorsRouter(object):
             }, request.args)
         search = r['search']
         def GET():
-            result = []
-            if search:
-                query = self.store.query(Author,
-                                         Author.name.like(
-                                            u'%{}%'.format(search)))
-            else:
-                query = self.store.query(Author)
-            for author in query:
-                result.append(
-                    { 'id': author.storeID
-                    , 'name': author.name
-                    , 'steamid': author.steamID
-                    })
-            return result
+            return self.db.authors.list(search=search)
         return EasyResource(GET)
 
 
@@ -55,15 +42,10 @@ class AuthorsRouter(object):
 
             if steamID:
                 steamID = int(steamID)
-                exists = self.store.findFirst(Author,
-                    attributes.OR(Author.steamID == steamID,
-                                  Author.name == name))
-                if exists:
-                    return APIError(
-                        http.BAD_REQUEST,
-                        'Author with that name or steamID already exists.')
-
-            Author(store=self.store, name=name, steamID=steamID)
+                try:
+                    self.db.authors.addAuthor(steamID, name)
+                except ValueError as e:
+                    return APIError(http.BAD_REQUEST, e.message)
         return EasyResource(handlePOST=POST)
 
 

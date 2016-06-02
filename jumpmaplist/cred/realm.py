@@ -1,5 +1,5 @@
 from twisted.cred.portal import IRealm
-from twisted.internet.defer import inlineCallbacks, maybeDeferred
+from twisted.internet.defer import maybeDeferred
 from twisted.web.resource import IResource
 from zope.interface import implements
 
@@ -7,15 +7,14 @@ from jumpmaplist.cred.guard import ExpireTokenResource
 from jumpmaplist.routers import PublicRouter, PrivateRouter
 from jumpmaplist.resource import ApplicationElement, LoginElement
 from jumpmaplist.util import ContentTypeRouter, LeafRenderableResource
-from jumpmaplist.database import getUser
 
 
 
 class MapListRealm(object):
     implements(IRealm)
 
-    def __init__(self, store, jsPath, steamAPI, redirectTo):
-        self.store = store
+    def __init__(self, database, jsPath, steamAPI, redirectTo):
+        self.db = database
         self.jsPath = jsPath
         self.steamAPI = steamAPI
         self.redirectTo = redirectTo
@@ -23,7 +22,7 @@ class MapListRealm(object):
 
     def anonymous(self):
         html = LeafRenderableResource(LoginElement())
-        json = PublicRouter(self.store)
+        json = PublicRouter(self.db)
 
         return ContentTypeRouter([
             ('text/html', html),
@@ -34,13 +33,13 @@ class MapListRealm(object):
     def registered(self, avatarId):
         # steam:XXXXXXXXXXXXXXXXX
         steamID = int(avatarId[6:])
-        user = getUser(self.store, steamID)
+        user = self.db.users.get(steamID)
         if not user:
             return ExpireTokenResource(self.redirectTo)
 
         html = LeafRenderableResource(ApplicationElement(steamID, self.jsPath,
                                                          user.superuser))
-        json = PrivateRouter(self.store, steamID, self.steamAPI)
+        json = PrivateRouter(self.db, steamID, self.steamAPI)
 
         return ContentTypeRouter([
             ('text/html', html),

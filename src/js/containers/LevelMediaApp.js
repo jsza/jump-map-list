@@ -38,7 +38,6 @@ class LevelMediaApp extends React.Component {
       body = <Throbber />
     }
     else {
-      console.log(data.toJS())
       body = (
         <div>
           <div className="list-group level-media-list">

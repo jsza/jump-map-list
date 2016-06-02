@@ -102,3 +102,23 @@ class User(Item):
                              allowNone=False)
     adderSteamID = A.integer(doc='SteamID of the user who added this user.')
     timestamp    = nowAttribute()
+
+    def asDict(self):
+        asi = self.adderSteamID
+        return (
+            { 'id': self.storeID
+            , 'steamid': str(self.steamID)
+            , 'superuser': self.superuser
+            , 'adder_steamid': str(asi) if asi else None
+            , 'timestamp': self.timestamp.asPOSIXTimestamp()
+            })
+
+
+
+class LogEntry(Item):
+    superuser = A.integer(doc='Whether this should be visible only to superusers.',
+                          allowNone=False)
+    logType   = A.text(doc='Log message type. See `jumpmaplist.constants.logtypes`.',
+                       allowNone=False)
+    data      = A.text(doc='JSON-encoded log data.', allowNone=False)
+    timestamp = nowAttribute()

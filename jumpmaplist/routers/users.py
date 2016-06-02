@@ -1,17 +1,10 @@
-from axiom import attributes
-
-from twisted.internet.threads import deferToThread
 from twisted.internet.defer import inlineCallbacks, returnValue
-from twisted.python.urlpath import URLPath
 from twisted.web import http
-from twisted.web.resource import ForbiddenResource, ErrorPage
-from twisted.web.static import Data
+from twisted.web.resource import ForbiddenResource
 
 from txspinneret import query as q
-from txspinneret.route import Router, Integer, Text, routedResource
+from txspinneret.route import Router, Integer, routedResource
 
-from jumpmaplist.database import getUser, addUser, deleteUser
-from jumpmaplist.items import User
 from jumpmaplist.resource import EasyResource, APIError
 from jumpmaplist.util import getSteamIDFromURL
 
@@ -27,27 +20,16 @@ class InvalidCommunityURL(APIError):
 class UsersRouter(object):
     router = Router()
 
-    def __init__(self, store, steamID, steamAPI):
+    def __init__(self, db, steamID, steamAPI):
+        self.db = db
         self.steamID = steamID
-        self.store = store
         self.steamAPI = steamAPI
 
 
     @router.subroute('list')
     def list(self, request, params):
         def GET():
-            result = []
-            query = self.store.query(User)
-            for user in query:
-                asi = user.adderSteamID
-                result.append(
-                    { 'id': user.storeID
-                    , 'steamid': str(user.steamID)
-                    , 'superuser': user.superuser
-                    , 'adder_steamid': str(asi) if asi else None
-                    , 'timestamp': user.timestamp.asPOSIXTimestamp()
-                    })
-            return result
+            return self.db.users.list()
         return EasyResource(GET)
 
 
@@ -55,7 +37,7 @@ class UsersRouter(object):
     def add(self, request, params):
         @inlineCallbacks
         def POST():
-            ourUser = getUser(self.store, self.steamID)
+            ourUser = self.db.users.get(self.steamID)
             if not ourUser.superuser:
                 returnValue(ForbiddenResource())
 
@@ -75,19 +57,12 @@ class UsersRouter(object):
                     APIError(http.BAD_REQUEST, 'Steam user does not exist.'))
 
             try:
-                user = addUser(self.store, steamID, superuser=superuser,
-                               adderSteamID=self.steamID)
+                user = self.db.users.add(steamID=steamID, superuser=superuser,
+                                         adderSteamID=self.steamID)
             except ValueError:
                 returnValue(APIError(http.BAD_REQUEST, 'User already exists.'))
 
-            asi = user.adderSteamID
-            returnValue (
-                { 'id': user.storeID
-                , 'steamid': str(user.steamID)
-                , 'superuser': user.superuser
-                , 'adder_steamid': str(asi) if asi else None
-                , 'timestamp': user.timestamp.asPOSIXTimestamp()
-                })
+            returnValue(user.asDict())
         return EasyResource(handlePOST=POST)
 
 
@@ -95,12 +70,15 @@ class UsersRouter(object):
     def delete(self, request, params):
         def POST():
             userID = params['userID']
-            ourUser = getUser(self.store, self.steamID)
+            ourUser = self.db.users.get(self.steamID)
             if not ourUser.superuser:
                 return ForbiddenResource()
-            item = self.store.getItemByID(userID)
+            item = self.db.store.getItemByID(userID)
             if item == ourUser:
                 return APIError(http.BAD_REQUEST,
                                 'You cannot delete your own user.')
-            deleteUser(self.store, userID)
+            try:
+                self.db.users.delete(userID, self.steamID)
+            except ValueError as e:
+                return APIError(http.BAD_REQUEST, e.message)
         return EasyResource(handlePOST=POST)

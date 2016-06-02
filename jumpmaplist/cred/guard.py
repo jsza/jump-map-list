@@ -17,7 +17,6 @@ from twisted.web.template import renderElement
 from twisted.web.util import Redirect, DeferredResource
 
 from jumpmaplist.cred.credentials import Preauthenticated
-from jumpmaplist.database import getUser
 from jumpmaplist.util import getUrlForRequest
 
 
@@ -93,12 +92,12 @@ class HTTPOpenIDAuthSessionWrapper(HTTPAuthSessionWrapper):
     sessionTimeout = 604800
 
     def __init__(self, portal, credentialFactories, redirectTo, keyPath,
-                 databaseStore):
+                 db):
         HTTPAuthSessionWrapper.__init__(self, portal, credentialFactories)
         self.openIDStore = MemoryStore()
         self.loginSemaphore = DeferredSemaphore(1)
         self.redirectTo = redirectTo
-        self.databaseStore = databaseStore
+        self.db = db
         if keyPath.exists():
             self.fernet = Fernet(keyPath.getContent())
         else:
@@ -150,7 +149,7 @@ class HTTPOpenIDAuthSessionWrapper(HTTPAuthSessionWrapper):
             # This should never occur unless Valve changes the ID format
             raise ValueError('Claimed ID is invalid: {}'.format(claimedID))
 
-        if not getUser(self.databaseStore, steamID):
+        if not self.db.users.get(steamID):
             return ForbiddenResource('You are not authorized to access this site.')
 
         token = self.makeToken(steamID)

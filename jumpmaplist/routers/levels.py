@@ -10,7 +10,6 @@ from jumpmaplist.items import (
     Author, Level, LevelAuthor, LevelClassTier, LevelMedia)
 from jumpmaplist.resource import EasyResource, APIError
 from jumpmaplist.route import JumpClass, MapTier, MediaType
-from jumpmaplist.database import nextIndexForLevelMedia
 
 
 
@@ -18,39 +17,15 @@ from jumpmaplist.database import nextIndexForLevelMedia
 class LevelsRouter(object):
     router = Router()
 
-    def __init__(self, store, steamID):
-        self.store = store
+    def __init__(self, db, steamID):
+        self.db = db
         self.steamID = steamID
 
 
     @router.subroute('list')
     def list(self, request, params):
         def GET():
-            result = []
-            for level in self.store.query(Level):
-                authors = self.store.query(LevelAuthor,
-                                           LevelAuthor.level == level)
-                authorCount = authors.count()
-                for a in authors:
-                    authorName = a.author.name
-                    break
-                else:
-                    authorName = None
-
-                classTiers = self.store.query(LevelClassTier,
-                                              LevelClassTier.level == level)
-                classTiersResult = {}
-                for ct in classTiers:
-                    classTiersResult[ct.tfClass] = ct.toDict()
-
-                result.append(
-                    { 'id': level.storeID
-                    , 'name': level.name
-                    , 'class_tiers': classTiersResult
-                    , 'author_count': authorCount
-                    , 'author_name': authorName
-                    })
-            return result
+            return self.db.levels.list()
         return EasyResource(GET)
 
 
@@ -61,27 +36,20 @@ class LevelsRouter(object):
             return APIError(http.BAD_REQUEST, 'Map name cannot be blank.')
 
         def POST():
-            query = self.store.query(Level, Level.name == name)
-            if query.count() > 0:
-                return APIError(http.BAD_REQUEST, 'Map already exists.')
-            level = Level(store=self.store, name=name, levelType=1)
-            return (
-                { 'id': level.storeID
-                , 'name': level.name
-                , 'class_tiers': {}
-                , 'author_count': 0
-                , 'author_name': None
-                })
+            try:
+                self.db.levels.add(name=name, levelType=0)
+            except ValueError as e:
+                return APIError(http.BAD_REQUEST, e.message)
         return EasyResource(handlePOST=POST)
 
 
     @router.subroute('id', Integer('id'))
     def byID(self, request, params):
-        levelID = params['id']
-        level = self.store.getItemByID(levelID)
-        if not isinstance(level, Level):
-            return APIError(http.BAD_REQUEST, 'Item ID is not a Level.')
-        return SingleLevelRouter(self.store, self.steamID, level)
+        try:
+            level = self.db.levels.get(params['id'])
+        except ValueError as e:
+            return APIError(http.BAD_REQUEST, e.message)
+        return SingleLevelRouter(self.db, self.steamID, level)
 
 
 
@@ -89,8 +57,8 @@ class LevelsRouter(object):
 class SingleLevelRouter(object):
     router = Router()
 
-    def __init__(self, store, steamID, level):
-        self.store = store
+    def __init__(self, db, steamID, level):
+        self.db = db
         self.steamID = steamID
         self.level = level
 
@@ -100,17 +68,7 @@ class SingleLevelRouter(object):
         tfClass = params['class']
         tier = params['tier']
         def POST():
-            levelClassTier = self.store.findFirst(LevelClassTier,
-                attributes.AND(LevelClassTier.level == self.level,
-                               LevelClassTier.tfClass == tfClass))
-            if not levelClassTier:
-                levelClassTier = LevelClassTier(store=self.store,
-                                                level=self.level,
-                                                tfClass=tfClass,
-                                                tier=tier)
-            else:
-                levelClassTier.tier = tier
-
+            self.db.levels.setTier(self.level, tfClass, tier)
         return EasyResource(handlePOST=POST)
 
 
@@ -123,12 +81,12 @@ class SingleLevelRouter(object):
 
     @router.subroute('authors')
     def authors(self, request, params):
-        return SingleLevelAuthorsRouter(self.store, self.steamID, self.level)
+        return SingleLevelAuthorsRouter(self.db, self.steamID, self.level)
 
 
     @router.subroute('media')
     def media(self, request, params):
-        return SingleLevelMediaRouter(self.store, self.steamID, self.level)
+        return SingleLevelMediaRouter(self.db, self.steamID, self.level)
 
 
 
@@ -136,8 +94,8 @@ class SingleLevelRouter(object):
 class SingleLevelAuthorsRouter(object):
     router = Router()
 
-    def __init__(self, store, steamID, level):
-        self.store = store
+    def __init__(self, db, steamID, level):
+        self.db = db
         self.steamID = steamID
         self.level = level
 
@@ -145,18 +103,7 @@ class SingleLevelAuthorsRouter(object):
     @router.subroute('list')
     def list(self, request, params):
         def GET():
-            result = []
-            query = self.store.query(LevelAuthor,
-                                     LevelAuthor.level == self.level)
-            for levelAuthor in query:
-                author = levelAuthor.author
-                result.append(
-                    { 'id': levelAuthor.storeID
-                    , 'author_id': author.storeID
-                    , 'name': author.name
-                    , 'steamid': author.steamID
-                    })
-            return result
+            return self.db.levels.listAuthors(self.level)
         return EasyResource(GET)
 
 
@@ -164,25 +111,10 @@ class SingleLevelAuthorsRouter(object):
     def add(self, request, params):
         authorID = params['id']
         def POST():
-            author = self.store.getItemByID(authorID)
-            if not isinstance(author, Author):
-                return APIError(http.BAD_REQUEST,
-                                'Item ID is not a Author.')
-
-            levelAuthor = self.store.findFirst(LevelAuthor,
-                    attributes.AND(
-                    LevelAuthor.level == self.level,
-                    LevelAuthor.author == author))
-
-            if not levelAuthor:
-                levelAuthor = LevelAuthor(store=self.store, level=self.level,
-                                          author=author)
-            return (
-                { 'id': levelAuthor.storeID
-                , 'author_id': author.storeID
-                , 'name': author.name
-                , 'steamid': author.steamID
-                })
+            try:
+                self.db.levels.addAuthor(self.level, authorID)
+            except ValueError as e:
+                return APIError(http.BAD_REQUEST, e.message)
         return EasyResource(handlePOST=POST)
 
 
@@ -190,18 +122,10 @@ class SingleLevelAuthorsRouter(object):
     def remove(self, request, params):
         authorID = params['id']
         def POST():
-            author = self.store.getItemByID(authorID)
-            if not isinstance(author, Author):
-                return APIError(http.BAD_REQUEST,
-                                'Item ID is not an Author.')
-
-            query = self.store.query(LevelAuthor,
-                attributes.AND(
-                    LevelAuthor.author == author,
-                    LevelAuthor.level  == self.level))
-
-            for item in query:
-                item.deleteFromStore()
+            try:
+                self.db.levels.remove(self.level, authorID)
+            except ValueError as e:
+                return APIError(http.BAD_REQUEST, e.message)
         return EasyResource(handlePOST=POST)
 
 
@@ -210,8 +134,8 @@ class SingleLevelAuthorsRouter(object):
 class SingleLevelMediaRouter(object):
     router = Router()
 
-    def __init__(self, store, steamID, level):
-        self.store = store
+    def __init__(self, db, steamID, level):
+        self.db = db
         self.steamID = steamID
         self.level = level
 
@@ -219,20 +143,7 @@ class SingleLevelMediaRouter(object):
     @router.subroute('list')
     def list(self, request, params):
         def GET():
-            query = self.store.query(LevelMedia,
-                                     LevelMedia.level == self.level,
-                                     sort=LevelMedia.index.asc)
-            result = []
-            for lm in query:
-                result.append(
-                    { 'id': lm.storeID
-                    , 'media_type': lm.mediaType
-                    , 'url': lm.url
-                    , 'index': lm.index
-                    , 'adder_steamid': str(lm.adderSteamID)
-                    , 'timestamp': lm.timestamp.asPOSIXTimestamp()
-                    })
-            return result
+            return self.db.levels.listMedia(self.level)
         return EasyResource(GET)
 
 
@@ -241,16 +152,6 @@ class SingleLevelMediaRouter(object):
         def POST():
             url = request.content.read().decode('utf8').strip()
             mediaType = params['type']
-            index = nextIndexForLevelMedia(self.store, self.level)
-            levelMedia = LevelMedia(store=self.store, level=self.level,
-                                    index=index, mediaType=mediaType, url=url,
-                                    adderSteamID=self.steamID)
-            return (
-                { 'id': levelMedia.storeID
-                , 'media_type': levelMedia.mediaType
-                , 'url': levelMedia.url
-                , 'index': levelMedia.index
-                , 'adder_steamid': str(levelMedia.adderSteamID)
-                , 'timestamp': levelMedia.timestamp.asPOSIXTimestamp()
-                })
+            return self.db.levels.addMedia(self.level, mediaType, url,
+                                           self.steamID)
         return EasyResource(handlePOST=POST)

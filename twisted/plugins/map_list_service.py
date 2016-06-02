@@ -15,6 +15,7 @@ from zope.interface import implements
 from jumpmaplist.cred.guard import HTTPOpenIDAuthSessionWrapper
 from jumpmaplist.cred.realm import MapListRealm
 from jumpmaplist.cred.checkers import PreauthenticatedChecker
+from jumpmaplist.database import Database
 
 
 
@@ -49,9 +50,11 @@ class MapListServiceMaker(object):
         store = Store(options['dbdir'])
         keyPath = FilePath(options['dbdir']).child('fernet.key')
 
+        database = Database(store)
+
         loginRedirect = '/'
-        portal = Portal(MapListRealm(store, options['bundle-path'], steamAPI,
-                                     loginRedirect))
+        portal = Portal(MapListRealm(database, options['bundle-path'],
+                                     steamAPI, loginRedirect))
         portal.registerChecker(PreauthenticatedChecker())
         portal.registerChecker(AllowAnonymousAccess())
 
