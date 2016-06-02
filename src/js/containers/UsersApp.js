@@ -84,7 +84,7 @@ class UsersApp extends React.Component {
                         : 'Command-line'
                         }
                       </td>
-                      <td>
+                      <td width="200">
                         <TimeAgo date={item.get('timestamp') * 1000} />
                       </td>
                       <td>

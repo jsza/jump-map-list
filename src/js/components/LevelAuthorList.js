@@ -19,7 +19,7 @@ export default class LevelAuthorList extends React.Component {
     return (
       <div className="extra-maps-author-list list-group">
         {data.map((a, idx) =>
-          <a key={idx} className="list-group-item" href="#" onClick={this.onSelect.bind(this, a)}>
+          <a key={idx} className="list-group-item level-author-item" href="#" onClick={this.onSelect.bind(this, a)}>
             <i className={`fa fa-${icon}`} /> <SteamAvatarContainer steamID64={a.get('steamid')} size="tiny" /> {a.get('name')}
           </a>
         )}

@@ -3,12 +3,13 @@ import IP from 'react-immutable-proptypes'
 import {connect} from 'react-redux'
 import {loadAuthors, addAuthor, deleteAuthor} from '../redux/authors'
 
-import {Table, Row, Col} from 'react-bootstrap'
+import {Table, Row, Col, FormControl, FormGroup} from 'react-bootstrap'
 import TimeAgo from 'react-timeago'
 import Throbber from '../components/Throbber'
 import SteamAvatarContainer from './SteamAvatarContainer'
 import SteamDisplayName from './SteamDisplayName'
 import AuthorNewForm from '../components/AuthorNewForm'
+import EditableInput from '../components/EditableInput'
 
 
 class AuthorsApp extends React.Component {
@@ -56,9 +57,11 @@ class AuthorsApp extends React.Component {
                       <td>
                         <SteamAvatarContainer steamID64={item.get('steamid')} size="tiny" />
                         <span> </span>
-                        {item.get('name')}
+                        <EditableInput
+                          value={item.get('name')}
+                          onSave={() => console.log('didit!')} />
                       </td>
-                      <td>
+                      <td width="200">
                         <TimeAgo date={item.get('timestamp') * 1000} />
                       </td>
                       <td>
