@@ -43,8 +43,10 @@ class Level(Item):
 
 
 class LevelAuthor(Item):
-    level     = A.reference(reftype=Level, allowNone=False)
-    author    = A.reference(reftype=Author, allowNone=False)
+    level  = A.reference(reftype=Level, allowNone=False,
+                         whenDeleted=A.reference.CASCADE)
+    author = A.reference(reftype=Author, allowNone=False,
+                         whenDeleted=A.reference.CASCADE)
 
     def toDict(self):
         print self.author
@@ -58,7 +60,8 @@ class LevelAuthor(Item):
 
 
 class LevelClassTier(Item):
-    level     = A.reference(reftype=Level, allowNone=False)
+    level     = A.reference(reftype=Level, allowNone=False,
+                            whenDeleted=A.reference.CASCADE)
     tfClass   = A.integer(doc='TF2 class index.', allowNone=False)
     tier      = A.integer(allowNone=False)
 
@@ -73,7 +76,8 @@ class LevelClassTier(Item):
 
 
 class LevelDownload(Item):
-    level = A.reference(reftype=Level, allowNone=False)
+    level = A.reference(reftype=Level, allowNone=False,
+                        whenDeleted=A.reference.CASCADE)
     url   = A.text(doc='Download URL.', allowNone=False)
 
     def toDict(self):
@@ -86,7 +90,8 @@ class LevelDownload(Item):
 
 
 class LevelMedia(Item):
-    level        = A.reference(reftype=Level, allowNone=False)
+    level        = A.reference(reftype=Level, allowNone=False,
+                               whenDeleted=A.reference.CASCADE)
     mediaType    = A.integer(doc='See `jumpmaplist.constants.mediatype`.',
                              allowNone=False)
     url          = A.text(doc='Remote URL for the media.', allowNone=False)
