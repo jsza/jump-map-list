@@ -113,7 +113,7 @@ class SingleLevelAuthorsRouter(object):
         authorID = params['id']
         def POST():
             try:
-                self.db.levels.addAuthor(self.level, authorID)
+                return self.db.levels.addAuthor(self.level, authorID)
             except ValueError as e:
                 return APIError(http.BAD_REQUEST, e.message)
         return EasyResource(handlePOST=POST)
@@ -124,7 +124,7 @@ class SingleLevelAuthorsRouter(object):
         authorID = params['id']
         def POST():
             try:
-                self.db.levels.remove(self.level, authorID)
+                self.db.levels.removeAuthor(self.level, authorID)
             except ValueError as e:
                 return APIError(http.BAD_REQUEST, e.message)
         return EasyResource(handlePOST=POST)

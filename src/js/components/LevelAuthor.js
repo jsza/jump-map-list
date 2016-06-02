@@ -1,11 +1,13 @@
 import React, {PropTypes as P} from 'react'
 import {connect} from 'react-redux'
-import {loadAuthors, searchAuthors, addAuthor,
-        removeAuthor, loadLevels} from '../redux/levels'
+import {loadLevelAuthors, addLevelAuthor, removeLevelAuthor,
+        loadLevels} from '../redux/levels'
+import {loadAuthors, addAuthor} from '../redux/authors'
 
 import {Modal, Button, Row, Col} from 'react-bootstrap'
 import LevelAuthorList from './LevelAuthorList'
 import LevelAuthorSearch from './LevelAuthorSearch'
+import AuthorNewForm from './AuthorNewForm'
 
 
 class LevelAuthor extends React.Component {
@@ -17,8 +19,8 @@ class LevelAuthor extends React.Component {
   onShow(event) {
     event.preventDefault()
     this.setState({show: true})
-    this.props.loadAuthors(this.props.id)
-    this.props.searchAuthors()
+    this.props.loadLevelAuthors(this.props.id)
+    this.props.loadAuthors()
   }
 
   hide() {
@@ -27,11 +29,12 @@ class LevelAuthor extends React.Component {
   }
 
   renderAuthor() {
-    if (this.props.author_count === 0) {
+    const {author_count, author_name} = this.props
+    if (author_count === 0) {
       return <i>Not Set</i>
     }
-    else if (this.props.author_count === 1) {
-      return this.props.author_name
+    else if (author_count === 1) {
+      return author_name
     }
     else {
       return <i>Multiple</i>
@@ -42,7 +45,9 @@ class LevelAuthor extends React.Component {
     if (!this.state.show) {
       return null
     }
-    let {data, searchData} = this.props
+    const {authors, levelAuthors} = this.props
+    let {data} = levelAuthors
+    let searchData = authors.data
     if (data) {
       data = data.valueSeq().toList()
     }
@@ -65,25 +70,29 @@ class LevelAuthor extends React.Component {
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <LevelAuthorSearch searchAuthors={this.props.searchAuthors} />
+          <LevelAuthorSearch loadAuthors={this.props.loadAuthors} />
           <Row>
-            <Col lg={6}>
+            <Col xs={6}>
               <LevelAuthorList
                 id={this.props.id}
                 data={data}
                 icon="minus"
-                onSelect={this.props.removeAuthor}
+                onSelect={this.props.removeLevelAuthor}
                 />
             </Col>
-            <Col lg={6}>
+            <Col xs={6}>
               <LevelAuthorList
                 id={this.props.id}
                 data={filterSearch}
                 icon="plus"
-                onSelect={this.props.addAuthor}
+                onSelect={this.props.addLevelAuthor}
                 />
             </Col>
           </Row>
+          <AuthorNewForm
+            addAuthor={this.props.addAuthor}
+            {...authors.toObject()}
+            />
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={this.hide.bind(this)}>Close</Button>
@@ -106,12 +115,17 @@ class LevelAuthor extends React.Component {
 
 
 function mapStateToProps(state) {
-  const {authors} = state.levels
-  return authors.toObject()
+  const levelAuthors = state.levels.authors
+  const authors = state.authors
+  return (
+    { levelAuthors: levelAuthors.toObject()
+    , authors: authors
+    })
 }
 
 
 export default connect(
   mapStateToProps,
-  {loadAuthors, searchAuthors, addAuthor, removeAuthor, loadLevels}
+  {loadLevelAuthors, loadAuthors, addLevelAuthor, removeLevelAuthor,
+   loadLevels, addAuthor}
 )(LevelAuthor)

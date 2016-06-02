@@ -1,13 +1,12 @@
-from axiom import attributes
-
+from twisted.internet.defer import inlineCallbacks, returnValue
 from twisted.web import http
-from twisted.web.static import Data
 
 from txspinneret import query as q
 from txspinneret.route import Router, Integer, Text, routedResource
 
-from jumpmaplist.items import Author, Level, LevelAuthor, LevelClassTier
 from jumpmaplist.resource import EasyResource, APIError
+from jumpmaplist.routers.users import InvalidCommunityURL
+from jumpmaplist.util import getSteamIDFromURL
 
 
 
@@ -15,9 +14,10 @@ from jumpmaplist.resource import EasyResource, APIError
 class AuthorsRouter(object):
     router = Router()
 
-    def __init__(self, db, steamID):
+    def __init__(self, db, steamID, steamAPI):
         self.db = db
         self.steamID = steamID
+        self.steamAPI = steamAPI
 
 
     @router.subroute('list')
@@ -33,6 +33,7 @@ class AuthorsRouter(object):
 
     @router.subroute('add', Text('name'))
     def add(self, request, params):
+        @inlineCallbacks
         def POST():
             r = q.parse(
                 { 'steamID': q.one(q.Text)
@@ -40,12 +41,22 @@ class AuthorsRouter(object):
             steamID = r['steamID']
             name = params['name']
 
+            url = request.content.read().strip()
+            steamID = yield getSteamIDFromURL(url, self.steamAPI)
+            if not steamID: returnValue(InvalidCommunityURL())
+
+            response = yield self.steamAPI['ISteamUser'].GetPlayerSummaries(
+                (steamID,))['response']
+            if not len(response['players']):
+                returnValue(
+                    APIError(http.BAD_REQUEST, 'Steam user does not exist.'))
+
             if steamID:
                 steamID = int(steamID)
                 try:
-                    self.db.authors.addAuthor(steamID, name)
+                    returnValue(self.db.authors.add(steamID, name))
                 except ValueError as e:
-                    return APIError(http.BAD_REQUEST, e.message)
+                    returnValue(APIError(http.BAD_REQUEST, e.message))
         return EasyResource(handlePOST=POST)
 
 
@@ -54,6 +65,11 @@ class AuthorsRouter(object):
         authorID = params['id']
 
 
-    @router.subroute('remove')
+    @router.subroute(Integer('id'), 'remove')
     def remove(self, request, params):
-        pass
+        def POST():
+            try:
+                self.db.authors.remove(params['id'])
+            except ValueError as e:
+                returnValue(APIError(http.BAD_REQUEST, e.message))
+        return EasyResource(handlePOST=POST)

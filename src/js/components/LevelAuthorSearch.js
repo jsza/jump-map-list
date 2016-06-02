@@ -22,7 +22,7 @@ export default class LevelAuthorSearch extends React.Component {
   }
 
   triggerLoad() {
-    this.props.searchAuthors(this.state.value)
+    this.props.loadAuthors(this.state.value)
   }
 
   onInputKeyUp(event) {
@@ -53,5 +53,5 @@ export default class LevelAuthorSearch extends React.Component {
 
 
 LevelAuthorSearch.propTypes =
-  { searchAuthors: P.func.isRequired
+  { loadAuthors: P.func.isRequired
   }

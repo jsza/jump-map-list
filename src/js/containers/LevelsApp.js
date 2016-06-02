@@ -65,7 +65,7 @@ class LevelsApp extends React.Component {
     }
     return (
       <div className="container-fluid">
-        <h1 className="page-title">jump.tf Maps</h1>
+        <h1 className="page-title">Maps</h1>
         <LevelDeleteAlert
           lastDelete={this.props.lastDelete}
           onDismiss={this.props.dismissLastDelete}

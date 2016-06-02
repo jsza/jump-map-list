@@ -20,7 +20,7 @@ export default class LevelItem extends React.Component {
     return (
       <tr>
         <td>
-          {name}
+          <strong>{name}</strong>
         </td>
         <td>
           <LevelAuthor
@@ -56,7 +56,7 @@ export default class LevelItem extends React.Component {
             className="pull-right"
             href="#"
             onClick={this.onClickDelete.bind(this)}>
-            <i className="fa fa-remove" />
+            Delete
           </a>
         </td>
       </tr>

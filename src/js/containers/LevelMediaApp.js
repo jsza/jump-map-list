@@ -64,6 +64,7 @@ class LevelMediaApp extends React.Component {
           </div>
           <hr />
           <LevelMediaNewForm
+            adding={this.props.adding}
             addMedia={this.props.addMedia}
             levelID={this.props.levelID}
             />

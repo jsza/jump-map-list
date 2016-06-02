@@ -4,11 +4,12 @@ import classnames from 'classnames'
 import {Button, FormGroup, FormControl} from 'react-bootstrap'
 
 
-export default class LevelAddForm extends React.Component {
+export default class AuthorNewForm extends React.Component {
   constructor(props) {
     super(props)
     this.state =
-      { value: ''
+      { nameValue: ''
+      , urlValue: ''
       , success: false
       }
   }
@@ -23,10 +24,7 @@ export default class LevelAddForm extends React.Component {
   }
 
   onClickAdd() {
-    if (this.state.value.length === 0) {
-      return
-    }
-    this.props.addLevel(this.state.value)
+    this.props.addAuthor(this.state.nameValue, this.state.urlValue)
   }
 
   onInputKeyUp(event) {
@@ -37,6 +35,7 @@ export default class LevelAddForm extends React.Component {
 
   renderButton() {
     const {adding} = this.props
+    const {nameValue, urlValue} = this.state
     const iconClasses = classnames(
       { 'fa': true
       , 'fa-plus': !adding
@@ -53,8 +52,8 @@ export default class LevelAddForm extends React.Component {
       <Button
         bsStyle={buttonStyle}
         onClick={this.onClickAdd.bind(this)}
-        disabled={adding || !this.state.value.length}>
-        <i className={iconClasses} /> Add map
+        disabled={adding || nameValue.length === 0 || urlValue.length === 0}>
+        <i className={iconClasses} /> New author
       </Button>
     )
   }
@@ -63,14 +62,19 @@ export default class LevelAddForm extends React.Component {
     const {addingError} = this.props
     return (
       <div className="form-inline">
-        <FormGroup>
-          <FormControl
-            placeholder="Enter map name"
-            value={this.state.value}
-            onChange={(e) => this.setState({value: e.target.value})}
-            onKeyUp={this.onInputKeyUp.bind(this)}
-          />
-        </FormGroup>
+        <FormControl
+          placeholder="Name"
+          value={this.state.nameValue}
+          onChange={(e) => this.setState({nameValue: e.target.value})}
+          onKeyUp={this.onInputKeyUp.bind(this)}
+        />
+        <span> </span>
+        <FormControl
+          placeholder="Steam Community URL"
+          value={this.state.urlValue}
+          onChange={(e) => this.setState({urlValue: e.target.value})}
+          onKeyUp={this.onInputKeyUp.bind(this)}
+        />
         <span> </span>
         {this.renderButton()}
         {addingError
@@ -84,8 +88,8 @@ export default class LevelAddForm extends React.Component {
 }
 
 
-LevelAddForm.propTypes =
+AuthorNewForm.propTypes =
   { adding: P.bool.isRequired
   , addingError: P.string
-  , addLevel: P.func.isRequired
+  , addAuthor: P.func.isRequired
   }

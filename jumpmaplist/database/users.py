@@ -8,7 +8,7 @@ class UserDatabase(BaseDatabase):
         result = []
         query = self.store.query(User)
         for user in query:
-            result.append(user.asDict())
+            result.append(user.toDict())
         return result
 
 

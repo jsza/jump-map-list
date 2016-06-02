@@ -24,10 +24,6 @@ const LOAD_AUTHORS_REQUEST = 'LEVELS_LOAD_AUTHORS_REQUEST'
 const LOAD_AUTHORS_SUCCESS = 'LEVELS_LOAD_AUTHORS_SUCCESS'
 const LOAD_AUTHORS_FAILURE = 'LEVELS_LOAD_AUTHORS_FAILURE'
 
-const SEARCH_AUTHORS_REQUEST = 'LEVELS_SEARCH_AUTHORS_REQUEST'
-const SEARCH_AUTHORS_SUCCESS = 'LEVELS_SEARCH_AUTHORS_SUCCESS'
-const SEARCH_AUTHORS_FAILURE = 'LEVELS_SEARCH_AUTHORS_FAILURE'
-
 const ADD_AUTHOR_REQUEST = 'LEVELS_ADD_AUTHOR_REQUEST'
 const ADD_AUTHOR_SUCCESS = 'LEVELS_ADD_AUTHOR_SUCCESS'
 const ADD_AUTHOR_FAILURE = 'LEVELS_ADD_AUTHOR_FAILURE'
@@ -41,9 +37,6 @@ const AuthorState = Immutable.Record(
   { fetching: false
   , error: null
   , data: null
-  , searching: false
-  , searchingError: null
-  , searchData: null
   })
 
 
@@ -155,23 +148,6 @@ export default function reducer(state=new initialState(), action) {
       return state.mergeIn(['authors'],
         { fetching: false
         , error: action.error
-        })
-    case SEARCH_AUTHORS_REQUEST:
-      return state.mergeIn(['authors'],
-        { searchData: null
-        , searching: true
-        , searchingError: false
-        })
-    case SEARCH_AUTHORS_SUCCESS:
-      return state.mergeIn(['authors'],
-        { searching: false
-        , searchData: new Immutable.OrderedMap(
-            action.data.map((i) => [i.id, Immutable.fromJS(i)]))
-        })
-    case SEARCH_AUTHORS_FAILURE:
-      return state.mergeIn(['authors'],
-        { searching: false
-        , searchingError: action.error
         })
     case ADD_AUTHOR_SUCCESS:
       return state.setIn(['authors', 'data', action.data.id],
@@ -286,7 +262,7 @@ export function undoLastDelete() {
 }
 
 
-export function loadAuthors(id) {
+export function loadLevelAuthors(id) {
   return (
     { [CALL_API]:
       { method: GET
@@ -300,27 +276,7 @@ export function loadAuthors(id) {
 }
 
 
-export function searchAuthors(string) {
-  let endpoint
-  if (!string || !string.trim().length) {
-    endpoint = 'authors/list'
-  }
-  else {
-    endpoint = `authors/list?search=${string}`
-  }
-  return (
-    { [CALL_API]:
-      { method: GET
-      , started: [SEARCH_AUTHORS_REQUEST]
-      , success: [SEARCH_AUTHORS_SUCCESS]
-      , failure: [SEARCH_AUTHORS_FAILURE]
-      , endpoint: endpoint
-      }
-    })
-}
-
-
-export function addAuthor(extraMapID, author) {
+export function addLevelAuthor(extraMapID, author) {
   return (
     { [CALL_API]:
       { method: POST
@@ -333,7 +289,7 @@ export function addAuthor(extraMapID, author) {
 }
 
 
-export function removeAuthor(extraMapID, author) {
+export function removeLevelAuthor(extraMapID, author) {
   const authorID = author.author_id
   return (
     { [CALL_API]:

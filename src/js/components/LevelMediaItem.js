@@ -82,7 +82,7 @@ LevelMediaItem.propTypes =
   { data: P.object.isRequired
   , first: P.bool.isRequired
   , last: P.bool.isRequired
-  , moveMediaUp: P.bool.isRequired
-  , moveMediaDown: P.bool.isRequired
+  , moveMediaUp: P.func.isRequired
+  , moveMediaDown: P.func.isRequired
   , deleteMedia: P.func.isRequired
   }

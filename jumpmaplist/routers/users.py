@@ -62,7 +62,7 @@ class UsersRouter(object):
             except ValueError:
                 returnValue(APIError(http.BAD_REQUEST, 'User already exists.'))
 
-            returnValue(user.asDict())
+            returnValue(user.toDict())
         return EasyResource(handlePOST=POST)
 
 

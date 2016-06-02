@@ -1,4 +1,5 @@
 import React, {PropTypes as P} from 'react'
+import classnames from 'classnames'
 
 
 import {FormGroup, FormControl, Button, Checkbox} from 'react-bootstrap'
@@ -7,12 +8,15 @@ import {FormGroup, FormControl, Button, Checkbox} from 'react-bootstrap'
 export default class UsersAddForm extends React.Component {
   constructor(props) {
     super(props)
-    this.state = {value: '', superuser: false}
+    this.state = {value: '', superuser: false, success: false}
   }
 
   componentWillReceiveProps(nextProps) {
     if (this.props.adding && !nextProps.adding && !nextProps.addingError) {
-      this.setState({value: '', superuser: false})
+      this.setState({value: '', superuser: false, success: true})
+    }
+    else {
+      this.setState({success: false})
     }
   }
 
@@ -34,13 +38,38 @@ export default class UsersAddForm extends React.Component {
     this.setState({superuser: event.target.checked})
   }
 
+  renderButton() {
+    const {adding} = this.props
+    const iconClasses = classnames(
+      { 'fa': true
+      , 'fa-plus': !adding
+      , 'fa-cog fa-spin': adding
+      })
+    let buttonStyle = 'primary'
+    if (this.state.success) {
+      buttonStyle = 'success'
+    }
+    else if (this.props.addingError) {
+      buttonStyle = 'danger'
+    }
+    return (
+      <Button
+        bsStyle={buttonStyle}
+        onClick={() => this.handleAdd()}
+        disabled={adding || !this.state.value.length}
+        >
+        <i className={iconClasses} /> Add User
+      </Button>
+    )
+  }
+
   render() {
-    const {adding, addingError} = this.props
+    const {addingError} = this.props
     return (
       <div>
         <div className="form-inline">
           <FormControl
-            placeholder="Enter Community URL"
+            placeholder="Steam Community URL"
             value={this.state.value}
             onChange={(e) => this.onInputChange(e)}
             onKeyUp={(e) => this.onInputKeyUp(e)}
@@ -54,13 +83,7 @@ export default class UsersAddForm extends React.Component {
             Superuser
           </Checkbox>
           <span> </span>
-          <Button
-            bsStyle="primary"
-            onClick={() => this.handleAdd()}
-            disabled={adding}
-            >
-            <i className="fa fa-fw fa-plus" /> Add User
-          </Button>
+          {this.renderButton()}
         </div>
         {addingError
         ? <p className="text-danger">

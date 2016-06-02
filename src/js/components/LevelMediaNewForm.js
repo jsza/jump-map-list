@@ -49,7 +49,7 @@ export default class LevelMediaNewForm extends React.Component {
             {MediaTypes.entrySeq().map((item, idx) => {
               const [key, value] = item
               return (
-                <option value={key}>
+                <option value={key} key={idx}>
                   {value}
                 </option>
               )

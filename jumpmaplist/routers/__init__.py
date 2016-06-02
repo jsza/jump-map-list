@@ -39,7 +39,7 @@ class PrivateRouter(object):
 
     @router.subroute('authors')
     def authors(self, request, params):
-        return AuthorsRouter(self.db, self.steamID)
+        return AuthorsRouter(self.db, self.steamID, self.steamAPI)
 
 
     @router.subroute('levels')

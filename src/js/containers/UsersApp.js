@@ -48,69 +48,70 @@ class UsersApp extends React.Component {
     }
     else {
       content = (
-        <div className="users-app">
-          <Table condensed striped hover>
-            <thead>
-              <tr>
-                <th>User</th>
-                <th>Superuser</th>
-                <th>Added By</th>
-                <th>Date</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {this.props.data.valueSeq().map((item, idx) => {
-                const steamID = item.get('steamid')
-                const adderSteamID = item.get('adder_steamid')
-                return (
-                  <tr key={idx}>
-                    <td>
-                      <SteamAvatarContainer
-                        steamID64={steamID}
-                        size="tiny"
-                        showName={true} />
-                    </td>
-                    <td>
-                      <b>{item.get('superuser').toString()}</b>
-                    </td>
-                    <td>
-                      {adderSteamID
-                      ? <SteamAvatarContainer
-                          steamID64={adderSteamID}
+        <Row className="users-app">
+          <Col lg={6}>
+            <Table condensed striped hover>
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Superuser</th>
+                  <th>Added By</th>
+                  <th>Date</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                {this.props.data.valueSeq().map((item, idx) => {
+                  const steamID = item.get('steamid')
+                  const adderSteamID = item.get('adder_steamid')
+                  return (
+                    <tr key={idx}>
+                      <td>
+                        <SteamAvatarContainer
+                          steamID64={steamID}
                           size="tiny"
                           showName={true} />
-                      : 'Command-line'
-                      }
-                    </td>
-                    <td>
-                      <TimeAgo date={item.get('timestamp') * 1000} />
-                    </td>
-                    <td>
-                      <a
-                        className="pull-right"
-                        href="#"
-                        onClick={(e) => this.onClickDelete(e, item.get('id'))}
-                        >
-                        <i className="fa fa-remove" /> Delete
-                      </a>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </Table>
-          {errorContent}
-          <UsersAddForm
-            adding={adding}
-            addingError={addingError}
-            addUser={this.props.addUser} />
-        </div>
+                      </td>
+                      <td>
+                        <b>{item.get('superuser').toString()}</b>
+                      </td>
+                      <td>
+                        {adderSteamID
+                        ? <SteamAvatarContainer
+                            steamID64={adderSteamID}
+                            size="tiny"
+                            showName={true} />
+                        : 'Command-line'
+                        }
+                      </td>
+                      <td>
+                        <TimeAgo date={item.get('timestamp') * 1000} />
+                      </td>
+                      <td>
+                        <a
+                          className="pull-right"
+                          href="#"
+                          onClick={(e) => this.onClickDelete(e, item.get('id'))}
+                          >
+                          Delete
+                        </a>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </Table>
+            {errorContent}
+            <UsersAddForm
+              adding={adding}
+              addingError={addingError}
+              addUser={this.props.addUser} />
+          </Col>
+        </Row>
       )
     }
     return (
       <div className="container-fluid">
-        <hr />
         <h1 className="page-title">Users</h1>
         {content}
       </div>

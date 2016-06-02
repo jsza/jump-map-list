@@ -90,13 +90,13 @@ class SteamAvatar extends React.Component {
     const body = <img className={classes} src={this.getAvatarURL()} />
     if (!this.props.noLink)
       return (
-        <div>
+        <span>
           <a href={this.makeURL()} onClick={this.onClick}>
             {body}
           </a>
           <span> </span>
           {this.props.showName ? this.getPersonaname() : null}
-        </div>
+        </span>
       )
     return body
   }

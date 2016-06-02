@@ -2,6 +2,7 @@ import React, {PropTypes as P} from 'react'
 import IP from 'react-immutable-proptypes'
 
 import Throbber from './Throbber'
+import SteamAvatarContainer from '../containers/SteamAvatarContainer'
 
 
 export default class LevelAuthorList extends React.Component {
@@ -19,7 +20,7 @@ export default class LevelAuthorList extends React.Component {
       <div className="extra-maps-author-list list-group">
         {data.map((a, idx) =>
           <a key={idx} className="list-group-item" href="#" onClick={this.onSelect.bind(this, a)}>
-            <i className={`fa fa-${icon}`} /> {a.get('name')}
+            <i className={`fa fa-${icon}`} /> <SteamAvatarContainer steamID64={a.get('steamid')} size="tiny" /> {a.get('name')}
           </a>
         )}
       </div>

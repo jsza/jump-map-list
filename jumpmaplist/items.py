@@ -19,9 +19,10 @@ class Author(Item):
 
     def toDict(self):
         return (
-            { 'id': self.storeID
+            { 'id': str(self.storeID)
             , 'name': self.name
-            , 'steamid': self.steamID
+            , 'steamid': str(self.steamID)
+            , 'timestamp': self.timestamp.asPOSIXTimestamp()
             })
 
 
@@ -34,7 +35,7 @@ class Level(Item):
 
     def toDict(self):
         return (
-            { 'id': self.storeID
+            { 'id': str(self.storeID)
             , 'name': self.name
             , 'level_type': self.levelType
             })
@@ -46,11 +47,12 @@ class LevelAuthor(Item):
     author    = A.reference(reftype=Author, allowNone=False)
 
     def toDict(self):
+        print self.author
         return (
-            { 'id': self.storeID
-            , 'author_id': self.author.storeID
+            { 'id': str(self.storeID)
+            , 'author_id': str(self.author.storeID)
             , 'name': self.author.name
-            , 'steamid': self.author.steamID
+            , 'steamid': str(self.author.steamID)
             })
 
 
@@ -62,8 +64,8 @@ class LevelClassTier(Item):
 
     def toDict(self):
         return (
-            { 'id': self.storeID
-            , 'level_id': self.level.storeID
+            { 'id': str(self.storeID)
+            , 'level_id': str(self.level.storeID)
             , 'tf_class': self.tfClass
             , 'tier': self.tier
             })
@@ -76,8 +78,8 @@ class LevelDownload(Item):
 
     def toDict(self):
         return (
-            { 'id': self.storeID
-            , 'level_id': self.level.storeID
+            { 'id': str(self.storeID)
+            , 'level_id': str(self.level.storeID)
             , 'url': self.url
             })
 
@@ -94,6 +96,16 @@ class LevelMedia(Item):
                              allowNone=False)
     timestamp    = nowAttribute()
 
+    def toDict(self):
+        return (
+            { 'id': str(self.storeID)
+            , 'media_type': self.mediaType
+            , 'url': self.url
+            , 'index': self.index
+            , 'adder_steamid': str(self.adderSteamID)
+            , 'timestamp': self.timestamp.asPOSIXTimestamp()
+            })
+
 
 
 class User(Item):
@@ -103,10 +115,10 @@ class User(Item):
     adderSteamID = A.integer(doc='SteamID of the user who added this user.')
     timestamp    = nowAttribute()
 
-    def asDict(self):
+    def toDict(self):
         asi = self.adderSteamID
         return (
-            { 'id': self.storeID
+            { 'id': str(self.storeID)
             , 'steamid': str(self.steamID)
             , 'superuser': self.superuser
             , 'adder_steamid': str(asi) if asi else None

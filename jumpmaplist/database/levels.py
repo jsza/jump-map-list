@@ -9,7 +9,7 @@ from jumpmaplist.items import Level, LevelAuthor, LevelClassTier, LevelMedia
 class LevelDatabase(BaseDatabase):
     def list(self):
         result = []
-        for level in self.store.query(Level):
+        for level in self.store.query(Level, sort=Level.name.asc):
             result.append(self.detailedInfo(level))
         return result
 
@@ -80,13 +80,7 @@ class LevelDatabase(BaseDatabase):
         query = self.store.query(LevelAuthor,
                                  LevelAuthor.level == level)
         for levelAuthor in query:
-            author = levelAuthor.author
-            result.append(
-                { 'id': levelAuthor.storeID
-                , 'author_id': author.storeID
-                , 'name': author.name
-                , 'steamid': author.steamID
-                })
+            result.append(levelAuthor.toDict())
         return result
 
 
@@ -101,12 +95,7 @@ class LevelDatabase(BaseDatabase):
         if not levelAuthor:
             levelAuthor = LevelAuthor(store=self.store, level=level,
                                       author=author)
-        return (
-            { 'id': levelAuthor.storeID
-            , 'author_id': author.storeID
-            , 'name': author.name
-            , 'steamid': author.steamID
-            })
+        return levelAuthor.toDict()
 
 
     def removeAuthor(self, level, authorID):
@@ -125,17 +114,7 @@ class LevelDatabase(BaseDatabase):
         query = self.store.query(LevelMedia,
                                  LevelMedia.level == level,
                                  sort=LevelMedia.index.asc)
-        result = []
-        for lm in query:
-            result.append(
-                { 'id': lm.storeID
-                , 'media_type': lm.mediaType
-                , 'url': lm.url
-                , 'index': lm.index
-                , 'adder_steamid': str(lm.adderSteamID)
-                , 'timestamp': lm.timestamp.asPOSIXTimestamp()
-                })
-        return result
+        return [lm.toDict() for lm in query]
 
 
     def addMedia(self, level, mediaType, url, adderSteamID):
@@ -143,14 +122,7 @@ class LevelDatabase(BaseDatabase):
         levelMedia = LevelMedia(store=self.store, level=level,
                                 index=index, mediaType=mediaType, url=url,
                                 adderSteamID=adderSteamID)
-        return (
-            { 'id': levelMedia.storeID
-            , 'media_type': levelMedia.mediaType
-            , 'url': levelMedia.url
-            , 'index': levelMedia.index
-            , 'adder_steamid': str(levelMedia.adderSteamID)
-            , 'timestamp': levelMedia.timestamp.asPOSIXTimestamp()
-            })
+        return levelMedia.toDict()
 
 
     def nextIndexForLevelMedia(self, level):
