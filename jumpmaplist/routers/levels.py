@@ -37,7 +37,8 @@ class LevelsRouter(object):
 
         def POST():
             try:
-                self.db.levels.add(name=name, levelType=0)
+                self.db.levels.add(name=name, levelType=0,
+                                   adderSteamID=self.steamID)
             except ValueError as e:
                 return APIError(http.BAD_REQUEST, e.message)
         return EasyResource(handlePOST=POST)

@@ -44,17 +44,3 @@ class AuthorDatabase(BaseDatabase):
         return self.store.findFirst(Author,
             attributes.OR(Author.steamID == steamID,
                           Author.name == name))
-
-
-    def logAddLevel(self, level, user):
-        self.logEntry(u'ADD_LEVEL',
-            {'name': level.name, 'level_type': level.levelType,
-             'steamid': user.steamID},
-             False)
-
-
-    def logRemoveLevel(self, level, user):
-        self.logEntry(u'DELETE_LEVEL',
-            {'name': level.name, 'level_type': level.levelType,
-             'steamid': user.steamID},
-             False)

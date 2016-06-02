@@ -160,14 +160,14 @@ class LevelDatabase(BaseDatabase):
 
 
     def logAddLevel(self, level, adderSteamID):
-        self.logEntry('ADD_LEVEL',
+        self.logEntry(u'ADD_LEVEL',
             {'name': level.name, 'level_type': level.levelType,
              'steamid': adderSteamID},
              False)
 
 
     def logRemoveLevel(self, level, adderSteamID):
-        self.logEntry('DELETE_LEVEL',
+        self.logEntry(u'DELETE_LEVEL',
             {'name': level.name, 'level_type': level.levelType,
              'steamid': adderSteamID},
              False)
