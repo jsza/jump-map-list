@@ -99,14 +99,15 @@ export function loadUsers() {
 }
 
 
-export function addUser(steamID, superuser) {
+export function addUser(url, superuser) {
   return (
     { [CALL_API]:
       { method: POST
       , started: [ADD_REQUEST]
       , success: [ADD_SUCCESS]
       , failure: [ADD_FAILURE]
-      , endpoint: `users/add/${steamID}?superuser=${superuser}`
+      , endpoint: `users/add?superuser=${superuser}`
+      , data: url
       }
     })
 }

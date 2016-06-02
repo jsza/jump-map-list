@@ -6,9 +6,11 @@ from twisted.web.static import Data
 from txspinneret import query as q
 from txspinneret.route import Router, Integer, Text, routedResource
 
-from jumpmaplist.items import Author, Level, LevelAuthor, LevelClassTier
+from jumpmaplist.items import (
+    Author, Level, LevelAuthor, LevelClassTier, LevelMedia)
 from jumpmaplist.resource import EasyResource, APIError
-from jumpmaplist.route import JumpClass, MapTier
+from jumpmaplist.route import JumpClass, MapTier, MediaType
+from jumpmaplist.database import nextIndexForLevelMedia
 
 
 
@@ -19,6 +21,7 @@ class LevelsRouter(object):
     def __init__(self, store, steamID):
         self.store = store
         self.steamID = steamID
+
 
     @router.subroute('list')
     def list(self, request, params):
@@ -123,6 +126,11 @@ class SingleLevelRouter(object):
         return SingleLevelAuthorsRouter(self.store, self.steamID, self.level)
 
 
+    @router.subroute('media')
+    def media(self, request, params):
+        return SingleLevelMediaRouter(self.store, self.steamID, self.level)
+
+
 
 @routedResource
 class SingleLevelAuthorsRouter(object):
@@ -210,14 +218,39 @@ class SingleLevelMediaRouter(object):
 
     @router.subroute('list')
     def list(self, request, params):
-        pass
+        def GET():
+            query = self.store.query(LevelMedia,
+                                     LevelMedia.level == self.level,
+                                     sort=LevelMedia.index.asc)
+            result = []
+            for lm in query:
+                result.append(
+                    { 'id': lm.storeID
+                    , 'media_type': lm.mediaType
+                    , 'url': lm.url
+                    , 'index': lm.index
+                    , 'adder_steamid': str(lm.adderSteamID)
+                    , 'timestamp': lm.timestamp.asPOSIXTimestamp()
+                    })
+            return result
+        return EasyResource(GET)
 
 
-    @router.subroute('add')
+    @router.subroute('add', MediaType('type'))
     def add(self, request, params):
-        pass
-
-
-    @router.subroute('remove')
-    def remove(self, request, params):
-        pass
+        def POST():
+            url = request.content.read().decode('utf8').strip()
+            mediaType = params['type']
+            index = nextIndexForLevelMedia(self.store, self.level)
+            levelMedia = LevelMedia(store=self.store, level=self.level,
+                                    index=index, mediaType=mediaType, url=url,
+                                    adderSteamID=self.steamID)
+            return (
+                { 'id': levelMedia.storeID
+                , 'media_type': levelMedia.mediaType
+                , 'url': levelMedia.url
+                , 'index': levelMedia.index
+                , 'adder_steamid': str(levelMedia.adderSteamID)
+                , 'timestamp': levelMedia.timestamp.asPOSIXTimestamp()
+                })
+        return EasyResource(handlePOST=POST)

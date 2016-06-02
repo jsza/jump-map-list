@@ -4,6 +4,7 @@ import {connect} from 'react-redux'
 import {loadUsers, addUser, deleteUser} from '../redux/users'
 
 import {Table, Row, Col} from 'react-bootstrap'
+import TimeAgo from 'react-timeago'
 import Throbber from '../components/Throbber'
 import UsersAddForm from '../components/UsersAddForm'
 import SteamAvatarContainer from './SteamAvatarContainer'
@@ -53,12 +54,15 @@ class UsersApp extends React.Component {
               <tr>
                 <th>User</th>
                 <th>Superuser</th>
+                <th>Added By</th>
+                <th>Date</th>
                 <th />
               </tr>
             </thead>
             <tbody>
               {this.props.data.valueSeq().map((item, idx) => {
                 const steamID = item.get('steamid')
+                const adderSteamID = item.get('adder_steamid')
                 return (
                   <tr key={idx}>
                     <td>
@@ -69,6 +73,18 @@ class UsersApp extends React.Component {
                     </td>
                     <td>
                       <b>{item.get('superuser').toString()}</b>
+                    </td>
+                    <td>
+                      {adderSteamID
+                      ? <SteamAvatarContainer
+                          steamID64={adderSteamID}
+                          size="tiny"
+                          showName={true} />
+                      : 'Command-line'
+                      }
+                    </td>
+                    <td>
+                      <TimeAgo date={item.get('timestamp') * 1000} />
                     </td>
                     <td>
                       <a

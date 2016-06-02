@@ -3,6 +3,7 @@ import {JUMP_CLASSES} from '../constants/TFClasses'
 
 import LevelTierSelect from './LevelTierSelect'
 import LevelAuthor from './LevelAuthor'
+import LevelMediaApp from '../containers/LevelMediaApp'
 
 
 export default class LevelItem extends React.Component {
@@ -39,6 +40,12 @@ export default class LevelItem extends React.Component {
               />
           </td>
         )}
+        <td>
+          <LevelMediaApp
+            levelID={id}
+            name={name}
+            />
+        </td>
         <td>
           <input className="form-control small-input" />
         </td>

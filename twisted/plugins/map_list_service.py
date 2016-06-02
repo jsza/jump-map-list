@@ -49,11 +49,14 @@ class MapListServiceMaker(object):
         store = Store(options['dbdir'])
         keyPath = FilePath(options['dbdir']).child('fernet.key')
 
-        portal = Portal(MapListRealm(store, options['bundle-path'], steamAPI))
+        loginRedirect = '/'
+        portal = Portal(MapListRealm(store, options['bundle-path'], steamAPI,
+                                     loginRedirect))
         portal.registerChecker(PreauthenticatedChecker())
         portal.registerChecker(AllowAnonymousAccess())
 
-        root = HTTPOpenIDAuthSessionWrapper(portal, [], '/', keyPath, store)
+        root = HTTPOpenIDAuthSessionWrapper(portal, [], loginRedirect, keyPath,
+                                            store)
 
         site = Site(root)
         site.sessionFactory = LongSession

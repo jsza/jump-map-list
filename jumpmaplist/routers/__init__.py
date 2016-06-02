@@ -9,6 +9,7 @@ from jumpmaplist.items import Author
 from jumpmaplist.resource import EasyResource, APIError
 from jumpmaplist.routers.authors import AuthorsRouter
 from jumpmaplist.routers.levels import LevelsRouter
+from jumpmaplist.routers.media import LevelMediaRouter
 from jumpmaplist.routers.users import UsersRouter
 
 
@@ -51,6 +52,11 @@ class PrivateRouter(object):
     @router.subroute('users')
     def users(self, request, params):
         return UsersRouter(self.store, self.steamID, self.steamAPI)
+
+
+    @router.subroute('levelmedia')
+    def media(self, request, params):
+        return LevelMediaRouter(self.store, self.steamID)
 
 
     @router.subroute('steamavatars')

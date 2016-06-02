@@ -1,23 +1,25 @@
 import React, {PropTypes as P} from 'react'
+import MediaTypes from '../constants/MediaTypes'
 
 
-import {FormGroup, FormControl, Button, Checkbox} from 'react-bootstrap'
+import {FormControl, Button} from 'react-bootstrap'
 
 
-export default class UsersAddForm extends React.Component {
+export default class LevelMediaNewForm extends React.Component {
   constructor(props) {
     super(props)
-    this.state = {value: '', superuser: false}
+    this.state = {value: '', mediaType: '0'}
   }
 
   componentWillReceiveProps(nextProps) {
     if (this.props.adding && !nextProps.adding && !nextProps.addingError) {
-      this.setState({value: '', superuser: false})
+      this.setState({value: '', mediaType: '0'})
     }
   }
 
   handleAdd() {
-    this.props.addUser(this.state.value.trim(), this.state.superuser)
+    this.props.addMedia(this.props.levelID, this.state.mediaType,
+                        this.state.value.trim())
   }
 
   onInputChange(event) {
@@ -30,8 +32,8 @@ export default class UsersAddForm extends React.Component {
     }
   }
 
-  onCheckboxChange(event) {
-    this.setState({superuser: event.target.checked})
+  onSelectChange(event) {
+    this.setState({mediaType: event.target.value})
   }
 
   render() {
@@ -40,26 +42,33 @@ export default class UsersAddForm extends React.Component {
       <div>
         <div className="form-inline">
           <FormControl
-            placeholder="Enter Community URL"
+            componentClass="select"
+            value={this.state.mediaType}
+            onChange={(e) => this.onSelectChange(e)}
+            >
+            {MediaTypes.entrySeq().map((item, idx) => {
+              const [key, value] = item
+              return (
+                <option value={key}>
+                  {value}
+                </option>
+              )
+            })}
+          </FormControl>
+          <span> </span>
+          <FormControl
+            placeholder="Media URL"
             value={this.state.value}
             onChange={(e) => this.onInputChange(e)}
             onKeyUp={(e) => this.onInputKeyUp(e)}
             />
-          <span> </span>
-          <Checkbox
-            checked={this.state.superuser}
-            readOnly
-            onChange={this.onCheckboxChange.bind(this)}
-            >
-            Superuser
-          </Checkbox>
           <span> </span>
           <Button
             bsStyle="primary"
             onClick={() => this.handleAdd()}
             disabled={adding}
             >
-            <i className="fa fa-fw fa-plus" /> Add User
+            <i className="fa fa-fw fa-plus" /> Add
           </Button>
         </div>
         {addingError
@@ -73,8 +82,8 @@ export default class UsersAddForm extends React.Component {
 }
 
 
-UsersAddForm.propTypes =
-  { addUser: P.func.isRequired
+LevelMediaNewForm.propTypes =
+  { addMedia: P.func.isRequired
   , adding: P.bool.isRequired
   , addingError: P.string
   }

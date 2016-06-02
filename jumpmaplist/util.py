@@ -1,5 +1,9 @@
+from twisted.internet.defer import inlineCallbacks, returnValue
+from twisted.internet.threads import deferToThread
+from twisted.python.urlpath import URLPath
 from twisted.web.resource import Resource
 from twisted.web.server import quote, networkString, nativeString
+
 from txspinneret.resource import _RenderableResource, NotAcceptable
 from txspinneret.util import _parseAccept
 
@@ -106,3 +110,26 @@ def getUrlForRequest(request):
         hostport))
     path = b'/'.join([quote(segment, safe=b'') for segment in prepath])
     return prefix + path
+
+
+
+@inlineCallbacks
+def getSteamIDFromURL(url, steamAPI):
+    path = URLPath.fromString(url)
+    steamID = None
+    if path.netloc.lower() == 'steamcommunity.com':
+        if path.path.startswith('/id/'):
+            vanityURL = path.path[4:].rstrip('/')
+            response = yield deferToThread(
+                steamAPI['ISteamUser'].ResolveVanityURL,
+                vanityurl=vanityURL)
+            try:
+                steamID = int(response['response']['steamid'])
+            except (KeyError, ValueError):
+                pass
+        elif path.path.startswith('/profiles/'):
+            try:
+                steamID = int(path.path[10:].rstrip('/'))
+            except ValueError:
+                pass
+    returnValue(steamID)

@@ -39,7 +39,8 @@ class LevelsApp extends React.Component {
                 <th>Author</th>
                 <th>Soldier Tier</th>
                 <th>Demoman Tier</th>
-                <th>URL</th>
+                <th>Media</th>
+                <th>Download URL</th>
                 <th />
               </tr>
             </thead>

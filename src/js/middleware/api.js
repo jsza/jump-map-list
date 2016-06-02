@@ -23,6 +23,9 @@ export default function apiMiddleware(api) {
     const {started, success, failure} = callAPI
 
     function runActions(actions, extra) {
+      if (!actions) {
+        return
+      }
       for (let a of actions) {
         if (typeof a === 'string') {
           const thing = Object.assign({}, extra, {type: a})

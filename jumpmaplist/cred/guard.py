@@ -195,3 +195,16 @@ class ElementRenderer(Resource):
     def render(self, request):
         return renderElement(request, self.element)
 
+
+
+class ExpireTokenResource(Resource):
+    isLeaf = True
+
+    def __init__(self, redirectTo):
+        self.redirectTo = redirectTo
+
+
+    def render(self, request):
+        request.addCookie(HTTPOpenIDAuthSessionWrapper.cookieName, b'',
+                          path=b'/', max_age=0)
+        return Redirect(self.redirectTo).render(request)

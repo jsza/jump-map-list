@@ -1,12 +1,13 @@
-from jumpmaplist.items import User
+from jumpmaplist.items import User, LevelMedia
 
 
 
-def addUser(store, steamID, superuser):
+def addUser(store, steamID, superuser, adderSteamID):
     user = store.findFirst(User, User.steamID == steamID)
     if user:
         raise ValueError('User already exists for {!r}'.format(steamID))
-    return User(store=store, steamID=steamID, superuser=superuser)
+    return User(store=store, steamID=steamID, superuser=superuser,
+                adderSteamID=adderSteamID)
 
 
 
@@ -26,3 +27,10 @@ def deleteUser(store, userID):
         item.deleteFromStore()
     else:
         pass
+
+
+
+def nextIndexForLevelMedia(store, level):
+    item = store.findFirst(LevelMedia, LevelMedia.level == level,
+                           sort=LevelMedia.index.desc)
+    return (item.index if item else 0) + 1

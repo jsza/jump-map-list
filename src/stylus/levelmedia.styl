@@ -1,0 +1,61 @@
+.level-media-badge
+    cursor pointer
+    font-size 1.1em
+    opacity 0.9
+
+    &:hover
+        opacity 1
+
+.level-media-list
+    max-height 600px
+    overflow-y auto
+
+.level-media-container
+    display inline-block
+    margin-left 42px
+    margin-right 8px
+    width 200px
+    min-height 80px
+    vertical-align top
+    padding-right 4px
+    border-right 1px solid #ddd
+
+.level-media-item
+    position relative
+    margin-bottom 8px
+    border-radius 4px
+
+    .order-up, .order-down
+        position absolute
+        left 0
+        border 1px solid #ddd
+        border-left 0
+        padding 8px 16px
+        cursor pointer
+
+        &:hover
+            background-color rgb(245, 245, 245)
+
+        &[disabled]
+            color rgb(200, 200, 200)
+            cursor not-allowed
+
+            &:hover
+                background-color white
+
+    .order-up
+        top 0
+        border-top 0
+
+    .order-down
+        bottom 0
+        border-bottom 0
+
+    .remove
+        float right
+
+
+.level-media-info-list
+    display inline-block
+    padding-left 0
+    list-style none

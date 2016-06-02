@@ -1,11 +1,21 @@
+from epsilon.extime import Time
+
 from axiom import attributes as A
 from axiom.item import Item
 
 
 
+def nowAttribute(allowNone=False, defaultFactory=Time):
+    return A.timestamp(doc='Date the item was added.',
+                       allowNone=allowNone,
+                       defaultFactory=defaultFactory)
+
+
+
 class Author(Item):
-    name    = A.text(allowNone=False)
-    steamID = A.integer(doc='64-bit community steam ID.')
+    name      = A.text(allowNone=False)
+    steamID   = A.integer(doc='64-bit community steam ID.')
+    timestamp = nowAttribute()
 
     def toDict(self):
         return (
@@ -20,6 +30,7 @@ class Author(Item):
 class Level(Item):
     name      = A.text(allowNone=False)
     levelType = A.integer(allowNone=False)
+    timestamp = nowAttribute(allowNone=False)
 
     def toDict(self):
         return (
@@ -31,8 +42,8 @@ class Level(Item):
 
 
 class LevelAuthor(Item):
-    level  = A.reference(reftype=Level, allowNone=False)
-    author = A.reference(reftype=Author, allowNone=False)
+    level     = A.reference(reftype=Level, allowNone=False)
+    author    = A.reference(reftype=Author, allowNone=False)
 
     def toDict(self):
         return (
@@ -45,9 +56,9 @@ class LevelAuthor(Item):
 
 
 class LevelClassTier(Item):
-    level   = A.reference(reftype=Level, allowNone=False)
-    tfClass = A.integer(doc='TF2 class index.', allowNone=False)
-    tier    = A.integer(allowNone=False)
+    level     = A.reference(reftype=Level, allowNone=False)
+    tfClass   = A.integer(doc='TF2 class index.', allowNone=False)
+    tier      = A.integer(allowNone=False)
 
     def toDict(self):
         return (
@@ -73,13 +84,21 @@ class LevelDownload(Item):
 
 
 class LevelMedia(Item):
-    level     = A.reference(reftype=Level, allowNone=False)
-    mediaType = A.integer(doc='See `jumpmaplist.constants.mediatype`.',
+    level        = A.reference(reftype=Level, allowNone=False)
+    mediaType    = A.integer(doc='See `jumpmaplist.constants.mediatype`.',
+                             allowNone=False)
+    url          = A.text(doc='Remote URL for the media.', allowNone=False)
+    index        = A.integer(doc='Order at which to display the media.',
                           allowNone=False)
-    url       = A.text(doc='URL for the media', allowNone=False)
+    adderSteamID = A.integer(doc='SteamID of the user who added this media.',
+                             allowNone=False)
+    timestamp    = nowAttribute()
 
 
 
 class User(Item):
-    steamID   = A.integer(doc='64-bit community steam ID.', allowNone=False)
-    superuser = A.boolean(doc='User can add or delete other users.', allowNone=False)
+    steamID      = A.integer(doc='64-bit community steam ID.', allowNone=False)
+    superuser    = A.boolean(doc='User can add or delete other users.',
+                             allowNone=False)
+    adderSteamID = A.integer(doc='SteamID of the user who added this user.')
+    timestamp    = nowAttribute()
