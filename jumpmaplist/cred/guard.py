@@ -150,7 +150,11 @@ class HTTPOpenIDAuthSessionWrapper(HTTPAuthSessionWrapper):
             raise ValueError('Claimed ID is invalid: {}'.format(claimedID))
 
         if not self.db.users.get(steamID):
-            return ForbiddenResource('You are not authorized to access this site.')
+            # If no users exist, grant superuser access to first login.
+            if self.db.users.count() == 0:
+                self.db.users.add(steamID=steamID, superuser=True)
+            else:
+                return ForbiddenResource('You are not authorized to access this site.')
 
         token = self.makeToken(steamID)
 

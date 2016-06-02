@@ -12,7 +12,11 @@ class UserDatabase(BaseDatabase):
         return result
 
 
-    def add(self, steamID, superuser, adderSteamID):
+    def count(self):
+        return self.store.query(User).count()
+
+
+    def add(self, steamID, superuser, adderSteamID=None):
         user = self.store.findFirst(User, User.steamID == steamID)
         if user:
             raise ValueError('User already exists for {!r}'.format(steamID))
