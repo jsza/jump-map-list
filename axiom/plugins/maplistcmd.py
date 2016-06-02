@@ -44,7 +44,7 @@ class ImportAuthors(AxiomaticSubCommand):
         path = self.decodeCommandLine(self['file'])
         content = FilePath(path).getContent()
         for line in content.strip().split('\n'):
-            steamID, name = line.split(':', 1)
+            steamID, name = line.split(',', 1)
             Author(store, name=name, steamID=steamidTo64(steamID))
         steamID = int(self.decodeCommandLine(self['steamid']))
 
