@@ -7,7 +7,7 @@ module.exports =
   { 'main': './js/index'
   }
 , output:
-  { path: path.join(__dirname, '..', '..', '..', 'build', 'website')
+  { path: path.join(__dirname, '..', '..', '..', 'build')
   , filename: 'bundle.js'
   }
 , plugins:

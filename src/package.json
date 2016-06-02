@@ -5,10 +5,9 @@
   "main": "js/index.js",
   "scripts": {
     "watch": "npm run watch-js",
-    "build": "npm run build-js && npm run build-styl",
+    "build": "npm run build-js",
     "build-js": "BUILD_DEV=0 webpack -p --progress --colors --display-error-details --config js/webpack/prod.config.js",
-    "watch-js": "node js/webpack/server.js",
-    "build-styl": "stylus -c -u autoprefixer-stylus stylus/index.styl -o ../build/website/styles.css"
+    "watch-js": "node js/webpack/server.js"
   },
   "repository": {
     "type": "git",

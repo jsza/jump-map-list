@@ -15,7 +15,7 @@ class MapListRealm(object):
 
     def __init__(self, database, jsPath, steamAPI, redirectTo):
         self.db = database
-        self.jsPath = jsPath
+        self.jsPath = jsPath or 'https://static.tempus.xyz/maplist/js'
         self.steamAPI = steamAPI
         self.redirectTo = redirectTo
 
