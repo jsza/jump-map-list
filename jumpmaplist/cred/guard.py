@@ -164,7 +164,7 @@ class HTTPOpenIDAuthSessionWrapper(HTTPAuthSessionWrapper):
 
 
     def makeToken(self, steamID):
-        if not isinstance(steamID, int):
+        if not isinstance(steamID, (int, long)):
             raise ValueError(
                 'Steam ID must be an int, got {!r}'.format(steamID))
         authid = u'steam:{:d}'.format(steamID)
