@@ -41,7 +41,7 @@ class ImportAuthors(AxiomaticSubCommand):
 
     def postOptions(self):
         store = self.parent.getStore()
-        path = int(self.decodeCommandLine(self['file']))
+        path = self.decodeCommandLine(self['file'])
         content = FilePath(path).getContent()
         for line in content.strip().split('\n'):
             steamID, name = line.split(':')
